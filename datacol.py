@@ -3,6 +3,7 @@ from cvzone.HandTrackingModule import HandDetector
 import numpy as np
 import math
 import time
+import os
 
 cam=cv2.VideoCapture(0) 
 detector = HandDetector(maxHands=1)
@@ -10,7 +11,11 @@ detector = HandDetector(maxHands=1)
 offset = 20
 imgSize = 300
 
-while True:
+DATA_DIR = '/Users/vel/Desktop/projects/Git projects/signlanguage/Data'
+number_of_classes = 3
+dataset_size = 5
+
+while True: 
     ret,img=cam.read()
     # img=cv2.flip(img,1)
     hands, img = detector.findHands(img)
@@ -41,8 +46,20 @@ while True:
             hGap = math.ceil((imgSize - hCal) / 2)
             imgWhite[hGap:hCal + hGap, :] = imgResize
         # cv2.imshow("ImageCrop", imgCrop)
+        
+        for j in range(number_of_classes):
+            if not os.path.exists(os.path.join(DATA_DIR, str(j))):
+                os.makedirs(os.path.join(DATA_DIR, str(j)))
+
+                print('Collecting data for class {}'.format(j))
+                
+                counter = 0
+                while counter < dataset_size:
+                    cv2.imwrite(os.path.join(DATA_DIR, str(j), '{}.jpg'.format(counter)), imgWhite)
+
+                    counter += 1
         cv2.imshow("ImageWhite", imgWhite)
-    cv2.imshow("test",img)
+    # cv2.imshow("test",img)
     k=cv2.waitKey(1)
     if k%256==27:
         break
